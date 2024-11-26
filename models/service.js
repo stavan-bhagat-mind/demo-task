@@ -46,6 +46,27 @@ module.exports = (sequelize, DataTypes) => {
       updatedAt: "updated_at",
       modelName: "Service",
       tableName: "services",
+      hooks: {
+        beforeUpdate: (service, options) => {
+          console.log("Before Update:", service.toJSON());
+          if (service.description) {
+            service.description = service.description.trim();
+          }
+        },
+        afterUpdate: (service, options) => {
+          console.log("after Update:", service.toJSON());
+        },
+        beforeSave: (service, options) => {
+          console.log("Before Save:", service.toJSON());
+
+          if (!service.name) {
+            service.name = service.name.trim().toLowerCase();
+          }
+        },
+        afterSave: (service, options) => {
+          console.log("After Save:", service.toJSON());
+        },
+      },
     }
   );
   return Service;
