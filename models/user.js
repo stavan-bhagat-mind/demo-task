@@ -15,6 +15,20 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
       },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       created_at: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -49,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
   );
   //static method declaration - hooks
   User.afterValidate("myHookIndividualBeforeName", (user, options) => {
-    user.name = `Ind. ${user}`;
+    user.name = `Ind. ${user.name}`;
   });
   // global declaration methods
   sequelize.addHook("validationFailed", (instance, options, error) => {
