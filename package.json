@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --timeout 10000",
     "start": "nodemon server.js",
     "migration:create": "npx sequelize-cli migration:generate --name",
     "migration:run": "npx sequelize-cli db:migrate",
@@ -27,6 +27,9 @@
   },
   "devDependencies": {
     "eslint": "^5.16.0",
-    "nodemon": "^2.0.16"
+    "nodemon": "^2.0.16",
+    "chai": "^3.5.0",
+    "chai-http": "^2.0.1",
+    "mocha": "^2.4.5"
   }
 }
