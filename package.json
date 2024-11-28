@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "mocha --timeout 10000",
+    "test": "mocha",
     "start": "nodemon server.js",
     "migration:create": "npx sequelize-cli migration:generate --name",
     "migration:run": "npx sequelize-cli db:migrate",
@@ -12,6 +12,7 @@
     "seeder:create": "npx sequelize-cli seed:generate --name",
     "seeder:run": "npx sequelize-cli db:seed:all",
     "seeder:undo": "npx sequelize-cli db:seed:undo"
+    
   },
   "author": "Karthik",
   "license": "ISC",

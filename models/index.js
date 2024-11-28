@@ -23,7 +23,7 @@ if (!process.sequelize) {
 
   try {
     sequelize.authenticate();
-    console.log("Connection has been established successfully.");
+    console.log("Connection has been established successfully.", env);
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }

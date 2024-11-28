@@ -20,13 +20,14 @@ const redisClient = require("../config/redisConfig");
 
 module.exports.getListOfUsers = async (req, res) => {
   try {
-    const data = await Models.User.findAndCountAll({
+    const { rows, count } = await Models.User.findAndCountAll({
       offset: DEFAULT_OFFSET,
       limit: DEFAULT_LIMIT,
       order: ORDER_BY_CREATED_AT_DESC,
     });
     res.send({
-      data,
+      data: rows,
+      meta: { count },
     });
   } catch (e) {
     console.log(e);
@@ -116,12 +117,12 @@ module.exports.addEditUser = async (req, res) => {
           7200
         );
         const updatedUser = updated[1][0];
-        res.send({
+        return res.status(200).send({
           data: updatedUser,
           message: USER_UPDATED,
         });
       } else {
-        res.status(STATUS_CODES.NOT_FOUND).send({
+        return res.status(STATUS_CODES.NOT_FOUND).send({
           message: USER_NOT_FOUND,
         });
       }
@@ -159,14 +160,14 @@ module.exports.addEditUser = async (req, res) => {
         "../public/views/emailTemplate.pug"
       );
       await sendEmail(emailData, fullTemplatePath);
-      res.send({
+      res.status(201).send({
         data,
         message: USER_CREATED,
       });
     }
   } catch (e) {
     console.log(e);
-    res.send({
+    res.status(STATUS_CODES.CREATED).send({
       data: null,
       message: SOMETHING_WENT_WRONG,
     });

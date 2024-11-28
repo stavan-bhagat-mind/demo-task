@@ -8,6 +8,6 @@ module.exports = {
     NOT_FOUND: 404,
     SUCCESS: 200,
     SERVER_ERROR: 500,
+    CREATED: 201,
   },
- 
 };
