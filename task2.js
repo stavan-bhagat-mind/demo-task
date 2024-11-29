@@ -9,7 +9,7 @@ const array = [
   {
     id: 1,
     name: "de",
-    // dependecies: [0],
+    // dependecies: [4],
     status: 1,
   },
   {
@@ -21,30 +21,32 @@ const array = [
   {
     id: 3,
     name: "werf",
-    dependecies: [2, 1],
+    dependecies: [1, 2],
     status: 1,
   },
   {
     id: 4,
     name: "werf",
-    dependecies: [1, 2],
+    dependecies: [3],
     status: 1,
   },
 ];
+
+const dataMap = new Map(array.map((item) => [item.id, item]));
 const Ids = {};
-module.exports = function fetchRecord(array, id) {
+function fetchRecord(id) {
   if (Ids[id]) {
     return { code: Infinity };
   }
   Ids[id] = true;
-  const data = array.find((data) => data.id === id && data.status === 1);
 
-  if (!data) {
+  const data = dataMap.get(id);
+  if (!data || data.status !== 1) {
     delete Ids[id];
     return { message: "record is not ready / unavailable", code: 0 };
   }
 
-  const check = data?.dependecies?.map((depId) => fetchRecord(array, depId));
+  const check = data?.dependecies?.map((depId) => fetchRecord(depId));
   if (check?.length) {
     const includeCodeInfinity = check.some(
       (record) => record.code === Infinity
@@ -65,9 +67,11 @@ module.exports = function fetchRecord(array, id) {
 
   delete Ids[id];
   return { message: "fetched successfully", data, code: 1 };
-};
+}
 
-// console.log(fetchRecord(array, 4));
+console.log(fetchRecord(4));
+
+//------------------------------------
 
 app.listen(3003, () => {
   console.log("server is running on 3003");
