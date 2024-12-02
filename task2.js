@@ -71,28 +71,32 @@ const countDays = (...arguments) => {
   for (let y = year1 + 1; y < year2; y++) {
     totalDays += (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365;
   }
-
+  console.log("totalDays", totalDays);
   // Calculate remaining days in the first year
   for (let m = month1; m <= 12; m++) {
     totalDays += daysInMonth(m, year1);
   }
+  console.log("totalDays2", totalDays);
   totalDays -= day1;
-
+  console.log("totalDay3", totalDays);
   // Add days for the last year
   for (let m = 1; m < month2; m++) {
     totalDays += daysInMonth(m, year2);
   }
+  console.log("totalDays4", totalDays);
   totalDays += day2;
-
+  console.log("totalDays5", totalDays);
   // Adjust for same year case
   if (year1 === year2) {
     totalDays = 0;
     for (let m = month1; m < month2; m++) {
       totalDays += daysInMonth(m, year1);
     }
+    console.log("totalDays6", totalDays);
     totalDays += day2 - day1;
+    console.log("totalDays7", totalDays);
   }
-
+  console.log("totalDays8", totalDays);
   return totalDays;
 };
 
