@@ -67,45 +67,42 @@ const countDays = (...arguments) => {
 
   let totalDays = 0;
 
-  // Calculate days for intermediate years
-  for (let y = year1 + 1; y < year2; y++) {
-    totalDays += (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365;
-  }
-  console.log("totalDays", totalDays);
-  // Calculate remaining days in the first year
-  for (let m = month1; m <= 12; m++) {
-    totalDays += daysInMonth(m, year1);
-  }
-  console.log("totalDays2", totalDays);
-  totalDays -= day1;
-  console.log("totalDay3", totalDays);
-  // Add days for the last year
-  for (let m = 1; m < month2; m++) {
-    totalDays += daysInMonth(m, year2);
-  }
-  console.log("totalDays4", totalDays);
-  totalDays += day2;
-  console.log("totalDays5", totalDays);
-  // Adjust for same year case
+  // Adjust for same year
   if (year1 === year2) {
     totalDays = 0;
     for (let m = month1; m < month2; m++) {
       totalDays += daysInMonth(m, year1);
     }
-    console.log("totalDays6", totalDays);
+
     totalDays += day2 - day1;
-    console.log("totalDays7", totalDays);
+  } else {
+    // Calculate days for long term years (loop works only if duration is more than  2years)
+    for (let y = year1 + 1; y < year2; y++) {
+      totalDays += (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365;
+    }
+
+    // Calculate days in the first year
+    for (let m = month1; m <= 12; m++) {
+      totalDays += daysInMonth(m, year1);
+    }
+
+    totalDays -= day1;
+    // Add days for the last year
+    for (let m = 1; m < month2; m++) {
+      totalDays += daysInMonth(m, year2);
+    }
+    totalDays += day2;
   }
-  console.log("totalDays8", totalDays);
+
   return totalDays;
 };
-
+// format ----> dd/mm/yyyy
 console.log(countDays("11/01/2023", "20/05/2024"));
 app.listen(3003, () => {
   return "server is running on 3003";
 });
 
-// with date function ---------------------------------------------------------------------------------------------------------------
+//----- WITH DATE FUNCTION -----used just to ensure that my created function anser is true or not ---------------------------------------------------------------------------------------------------------------
 const convertToISODate = (dateStr) => {
   // Split the date string into day, month, and year
   const [day, month, year] = dateStr.split("/").map(Number);
@@ -133,64 +130,12 @@ const countDaysUsingDateWithCustomFormat = (dateStr1, dateStr2) => {
 };
 
 console.log(
-  "w date",
+  "with date",
   countDaysUsingDateWithCustomFormat("11/01/2023", "20/05/2024")
 );
 
 // ------------- notes ---------
 // date is valid  =>  date has (valid days + valid months)
-
-//   // Calculate the difference in days
-//   const oneDay = 24 * 60 * 60 * 1000; // hours * minutes * seconds * milliseconds
-//   const diffDays = Math.round(Math.abs((Date1 - Date2) / oneDay));
-
-// function isLeapYear(year) {
-//   return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-// }
-
-// function daysInMonth(month, year) {
-//   const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-//   if (month === 2 && isLeapYear(year)) {
-//       return 29;
-//   }
-//   return monthDays[month - 1];
-// }
-
-// function incrementDate(year, month, day) {
-//   day++;
-//   if (day > daysInMonth(month, year)) {
-//       day = 1;
-//       month++;
-//       if (month > 12) {
-//           month = 1;
-//           year++;
-//       }
-//   }
-//   return [year, month, day];
-// }
-
-// function daysBetweenDates(date1, date2) {
-//   let [year1, month1, day1] = date1;
-//   let [year2, month2, day2] = date2;
-
-//   // Ensure date1 is the earlier date
-//   if (year1 > year2 || (year1 === year2 && month1 > month2) || (year1 === year2 && month1 === month2 && day1 > day2)) {
-//       [year1, month1, day1, year2, month2, day2] = [year2, month2, day2, year1, month1, day1];
-//   }
-
-//   let daysCount = 0;
-
-//   // Increment from date1 to date2
-//   while (year1 !== year2 || month1 !== month2 || day1 !== day2) {
-//       [year1, month1, day1] = incrementDate(year1, month1, day1);
-//       daysCount++;
-//   }
-
-//   return daysCount;
-// }
-
-// // Example usage:
-// const date1 = [2023, 10, 1]; // YYYY, MM, DD
-// const date2 = [2023, 10, 15];
-
-// console.log(daysBetweenDates(date1, date2)); // Output: 14
+//calculation for days in first year
+// calculation for days in last year
+//manage leap years
