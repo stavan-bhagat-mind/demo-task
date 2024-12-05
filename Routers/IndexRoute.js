@@ -1,5 +1,5 @@
 const IndexRoute = require("express").Router();
-const userRoute = require("../Routers/userRouter");
+const userRoute = require("../Routers/UserRouter");
 const productRoute = require("./productRouter");
 const serviceRoute = require("./serviceRouter");
 const reviewRoute = require("./reviewRouter");

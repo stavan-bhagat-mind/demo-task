@@ -1,3 +1,4 @@
+const sendEmail = require("../config/pugConfig");
 const { Models } = require("../models/index");
 const {
   DEFAULT_OFFSET,
@@ -5,6 +6,7 @@ const {
   ORDER_BY_CREATED_AT_DESC,
   STATUS_CODES,
 } = require("../utils/constant");
+const path = require("path");
 const {
   USER_NOT_FOUND,
   USER_CREATED,
@@ -14,6 +16,7 @@ const {
   USER_DOES_NOT_EXIST,
   SUCCESS,
 } = require("../utils/message");
+const redisClient = require("../config/redisConfig");
 
 module.exports.getListOfUsers = async (req, res) => {
   try {
@@ -37,6 +40,16 @@ module.exports.getListOfUsers = async (req, res) => {
 module.exports.getUserDataFromId = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
+
+    // let userData = await redisClient.hGetAll(`user:${id}`);
+    let userData = await redisClient.get(`userData${id}`);
+    if (userData && Object.keys(userData).length > 0) {
+      userData = JSON.parse(userData);
+      return res.send({
+        data: userData,
+        message: SUCCESS,
+      });
+    }
     const data = await Models.User.findOne({
       where: {
         id,
@@ -48,12 +61,12 @@ module.exports.getUserDataFromId = async (req, res) => {
         message: USER_DOES_NOT_EXIST,
       });
     }
-    res.send({
+    return res.send({
       data,
       message: SUCCESS,
     });
   } catch (e) {
-    res.send({
+    return res.send({
       data: null,
       message: SOMETHING_WENT_WRONG,
     });
@@ -63,12 +76,16 @@ module.exports.getUserDataFromId = async (req, res) => {
 module.exports.deleteUser = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    await Models.User.destroy({
+    console.log(id);
+    const result = await Models.User.destroy({
       where: {
-        id,
+        id: id,
       },
     });
+    await redisClient.del(`userData${id}`);
+    // await redisClient.del(`user:${id}`);
     res.send({
+      data: result,
       message: USER_DELETED,
     });
   } catch (e) {
@@ -81,16 +98,23 @@ module.exports.deleteUser = async (req, res) => {
 
 module.exports.addEditUser = async (req, res) => {
   try {
-    const { id, name } = req.body;
+    const { id, name, email, password, address } = req.body;
     if (id) {
-      const [updated] = await Models.User.update(
-        { name },
+      const data = await Models.User.update(
+        { name, email, password, address },
         {
           where: { id },
           returning: true,
         }
       );
-      if (updated) {
+      if (data) {
+        await redisClient.del(`userData${id}`);
+        await redisClient.set(
+          `userData${data.dataValues.id}`,
+          JSON.stringify(data),
+          "EX",
+          7200
+        );
         const updatedUser = updated[1][0];
         res.send({
           data: updatedUser,
@@ -102,13 +126,46 @@ module.exports.addEditUser = async (req, res) => {
         });
       }
     } else {
-      const data = await Models.User.create({ name });
+      const data = await Models.User.create({ name, email, password, address });
+      const emailData = {
+        subject: "Node.js Email Example",
+        receiver: {
+          name: data.name,
+          email: data.email,
+        },
+        text: "This is a test email. thank you for understanding!",
+      };
+      await redisClient.set(
+        `userData${data.dataValues.id}`,
+        JSON.stringify(data),
+        "EX",
+        7200
+      );
+      // await redisClient.hSet(`user:${data.dataValues.id}`, {
+      //   created_at: data.dataValues.created_at.toString(),
+      //   updated_at: data.dataValues.updated_at.toString(),
+      //   deleted_at: data.dataValues.deleted_at
+      //     ? data.dataValues.deleted_at.toString()
+      //     : "",
+      //   id: data.dataValues.id.toString(),
+      //   name: data.dataValues.name,
+      //   email: data.dataValues.email,
+      //   password: data.dataValues.password,
+      //   address: data.dataValues.address ? data.dataValues.address : "",
+      // });
+
+      const fullTemplatePath = path.join(
+        __dirname,
+        "../public/views/emailTemplate.pug"
+      );
+      await sendEmail(emailData, fullTemplatePath);
       res.send({
         data,
         message: USER_CREATED,
       });
     }
   } catch (e) {
+    console.log(e);
     res.send({
       data: null,
       message: SOMETHING_WENT_WRONG,

@@ -52,6 +52,27 @@ module.exports = (sequelize, DataTypes) => {
       updatedAt: "updated_at",
       modelName: "Review",
       tableName: "reviews",
+      hooks: {
+        beforeDestroy: (review, options) => {
+          if (review.rating === 5) {
+            throw new Error("Cannot delete");
+          }
+        },
+        afterDestroy: (review, options) => {
+          console.log("After Destroy:", user.toJSON());
+          //can be implemented logout
+        },
+        beforeFind: (options) => {
+          if (!options.where) {
+            options.where = {};
+          }
+          options.where.deleted_at = null;
+        },
+        beforeFindAfterOptions: (options) => {
+          options.limit = options.limit || 50;
+          options.order = options.order || [["created_at", "DESC"]];
+        },
+      },
     }
   );
   return Review;

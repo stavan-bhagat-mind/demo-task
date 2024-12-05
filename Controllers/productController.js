@@ -158,3 +158,43 @@ module.exports.getListOfProductReviews = async (req, res) => {
     });
   }
 };
+
+module.exports.bulkAddEditProduct = async (req, res) => {
+  try {
+    const products = req.body;
+    if (!Array.isArray(products) || products.length === 0) {
+      return res.status(400).send({
+        data: null,
+        message:
+          "Invalid input. Please provide an array of product objects to insert.",
+      });
+    }
+
+    const transaction = await Models.sequelize.transaction();
+
+    try {
+      const result = await Models.Product.bulkCreate(products, {
+        fields: ["name", "price", "details", "created_by", "updated_by"],
+
+        updateOnDuplicate: ["name", "price", "details", "updated_by"],
+        transaction,
+      });
+
+      await transaction.commit();
+
+      res.send({
+        data: result,
+        message: "Products saved successfully.",
+      });
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({
+      data: null,
+      message: "Something went wrong.",
+    });
+  }
+};
