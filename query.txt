@@ -1,0 +1,15 @@
+query getUsers {
+  users {
+    id
+    name
+    age
+    email
+  } 
+}
+----------------------------
+query getBooks {
+  books {
+ author
+ title
+  } 
+}
