@@ -1,7 +1,7 @@
 // const { User } = require('./models');
+const { where } = require("sequelize");
 const { LibUsers, books } = require("./db");
 const Models = require("./models/index");
-console.log(Models);
 const resolvers = {
   Query: {
     //books
@@ -22,13 +22,38 @@ const resolvers = {
   Mutation: {
     createUser: async (
       parent,
-      { id, name, email, age, password, address },
+      { name, email, age, password, address },
       context,
       info
     ) => {
       const newUser = { name, email, age, email, password, address };
       const result = await Models.User.create(newUser);
       console.log("result", result);
+      return result;
+    },
+    createUsers: async (parent, users, context, info) => {
+      const result = await Models.User.bulkCreate(users);
+      console.log("result", result);
+      return result;
+    },
+    updateUser: (
+      parent,
+      { id, name, email, age, password, address },
+      context,
+      info
+    ) => {
+      // newUser.name = name;
+      // newUser.email = email;
+      // newUser.age = age;
+      // return newUser;
+    },
+    deleteUser: async (parent, { id }, context, info) => {
+      console.log(id);
+      // const userIndex = users.findIndex((user) => user.id === id);
+      const result = await Models.User.destroy({ where: { id: id } });
+
+      console.log(result);
+
       return result;
     },
   },

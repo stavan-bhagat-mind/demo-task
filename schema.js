@@ -29,6 +29,7 @@ const schemaDefs = gql`
     user(id: ID!): LibUsers!
     users: [LibUsers!]!
     userBooks(userId: ID!): [Book]
+    deleteUser: User
   }
 
   type Mutation {
@@ -40,6 +41,15 @@ const schemaDefs = gql`
       address: String
     ): User
     createUsers(users: [UserInput!]!): [User!]!
+    updateUser(
+      id: ID!
+      name: String!
+      age: Int!
+      email: String!
+      password: String!
+      address: String
+    ): User
+    deleteUser(id: ID!): User
   }
   input UserInput {
     name: String!
